@@ -1,0 +1,35 @@
+/* berry-kids — 초등 저~중학년/어린이용. 베리 × 코랄 × 라임. 친근하고 따뜻 */
+:root {
+  --navy:    #6D2E46;  /* 베리 */
+  --deep:    #B8336A;  /* 라즈베리 */
+  --teal:    #C97B3F;  /* 코랄 브라운 */
+  --mist:    #FCE4EC;  /* 페일 핑크 */
+  --cream:   #FFF8F1;  /* 따뜻한 크림 */
+  --coral:   #FF8C5A;  /* 비비드 코랄 */
+  --amber:   #FFB454;  /* 따뜻한 앰버 */
+  --ink:     #2A1B22;
+  --muted:   #7A5C66;
+  --rule:    #F0D5DD;
+  --bg:      #FFFBF8;
+  --fg:      var(--ink);
+  --card:    #ffffff;
+  --code-bg: #2a1e26;
+  --shadow:  0 2px 6px rgba(184,51,106,.08), 0 6px 16px rgba(184,51,106,.06);
+  --base-fs: 18px;  /* 어린이는 한 단계 크게 */
+}
+[data-theme="dark"] {
+  --navy:    #f5d2dd;
+  --deep:    #f08bb1;
+  --teal:    #e8a070;
+  --mist:    #3a232c;
+  --cream:   #1a1014;
+  --coral:   #ff8c5a;
+  --amber:   #ffb454;
+  --ink:     #f5e7eb;
+  --muted:   #a99099;
+  --rule:    #3a232c;
+  --bg:      #110a0d;
+  --fg:      var(--ink);
+  --card:    #1c1218;
+  --shadow:  0 2px 8px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+}

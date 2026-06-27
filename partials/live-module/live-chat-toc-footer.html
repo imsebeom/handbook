@@ -1,0 +1,22 @@
+<!-- LIVE: TOC 하단 관리자 영역 — <aside class="toc"> 마지막 </aside> 직전에 삽입 -->
+<div class="toc-footer">
+  <button type="button" class="btn" id="toc-admin-btn">
+    <span class="icon">🔒</span><span class="lbl">관리자 로그인</span>
+  </button>
+  <div class="admin-status" id="toc-admin-status" style="display:none"></div>
+  <div class="admin-controls" id="toc-admin-controls" style="display:none">
+    <div class="ac-label">📡 강사 팔로우 모드</div>
+    <button type="button" class="ac-pill" id="follow-pill"><span class="dot"></span><span class="lbl">팔로우 OFF</span></button>
+    <div class="ac-label" style="margin-top:10px;">💬 채팅 상태</div>
+    <div class="mode-seg" role="tablist" aria-label="채팅 모드">
+      <button type="button" data-mode="active" class="active">활성</button>
+      <button type="button" data-mode="readonly">잠금</button>
+      <button type="button" data-mode="hidden">숨김</button>
+    </div>
+    <p class="ac-help">
+      <strong>활성</strong>: 모두 작성·읽기<br>
+      <strong>잠금</strong>: 읽기만(작성 차단)<br>
+      <strong>숨김</strong>: 학생에게 패널 안 보임
+    </p>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+/* ocean-coral — 기본 테마. 네이비 × 티얼 × 코랄. 차분한 강의·연수 자료용 */
+:root {
+  --navy:    #0B2A4A;
+  --deep:    #065A82;
+  --teal:    #1C7293;
+  --mist:    #CFE3EE;
+  --cream:   #F4F8FB;
+  --coral:   #F4A261;
+  --amber:   #FFB454;
+  --ink:     #1A1A1A;
+  --muted:   #5C6670;
+  --rule:    #D8E3EA;
+  --bg:      #ffffff;
+  --fg:      var(--ink);
+  --card:    #ffffff;
+  --code-bg: #1e1e2e;
+  --shadow:  0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+  --base-fs: 17px;
+}
+[data-theme="dark"] {
+  --navy:    #cfe3ee;
+  --deep:    #6cb7d6;
+  --teal:    #8ec5da;
+  --mist:    #2a3f55;
+  --cream:   #0f1822;
+  --coral:   #f4a261;
+  --amber:   #ffb454;
+  --ink:     #e8eef3;
+  --muted:   #9aa7b3;
+  --rule:    #2a3f55;
+  --bg:      #0a141d;
+  --fg:      var(--ink);
+  --card:    #14222f;
+  --shadow:  0 1px 3px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
+}

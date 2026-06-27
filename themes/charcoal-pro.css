@@ -1,0 +1,36 @@
+/* charcoal-pro — 다크가 기본인 프로페셔널 테마. 차콜 × 슬레이트 × 일렉트릭 블루.
+   개발자 발표·기술 핸드북·테크 리포트용. 라이트 모드도 회색조로 정돈됨. */
+:root {
+  --navy:    #1B2230;  /* 딥 차콜 */
+  --deep:    #2D3A52;  /* 슬레이트 */
+  --teal:    #4A6FA5;  /* 일렉트릭 블루 */
+  --mist:    #DDE3EC;  /* 페일 슬레이트 */
+  --cream:   #F1F4F8;  /* 차가운 화이트 */
+  --coral:   #FF6B6B;  /* 일렉트릭 레드 액센트 */
+  --amber:   #FFD166;
+  --ink:     #14181F;
+  --muted:   #6B7280;
+  --rule:    #D5DBE4;
+  --bg:      #ffffff;
+  --fg:      var(--ink);
+  --card:    #ffffff;
+  --code-bg: #0d1117;
+  --shadow:  0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
+  --base-fs: 16px;  /* 정보 밀도 ↑ */
+}
+[data-theme="dark"] {
+  --navy:    #d5dbe4;
+  --deep:    #8b9bb8;
+  --teal:    #7aa3e3;
+  --mist:    #2a3447;
+  --cream:   #0d1117;
+  --coral:   #ff6b6b;
+  --amber:   #ffd166;
+  --ink:     #e6e9ef;
+  --muted:   #9ca3af;
+  --rule:    #2a3447;
+  --bg:      #0d1117;  /* GitHub 다크 톤 */
+  --fg:      var(--ink);
+  --card:    #161b22;
+  --shadow:  0 1px 3px rgba(0,0,0,.6), 0 4px 12px rgba(0,0,0,.4);
+}

@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 빌드 산출물(핸드북 폴더는 이 레포 밖에서 생성)
+slides/
+
+# OS / 편집기
+.DS_Store
+Thumbs.db
+*.bak

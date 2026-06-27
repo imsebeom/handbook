@@ -1,0 +1,129 @@
+/* ============================================================
+   SLIDE 모듈 CSS — 슬라이드 핸드북 (LIVE 모듈 확장)
+   삽입 위치: template.html 스타일 블록 끝 직전 (live-chat.css 다음)
+   구성: ① 수강생 미니 슬라이드 패널(사이드바 최상단) ② 확대 라이트박스
+        ③ 강사 발표 모드 전체화면 오버레이(?present)
+   변수는 테마 토큰(--navy/--coral/--card/--rule/--muted/--bg/--fg/--cream) 재사용
+   ============================================================ */
+
+/* ① 수강생 미니 슬라이드 패널 — <aside class="toc"> 안 .topbar 위에 삽입 */
+.slide-mini {
+  margin: 0 0 16px;
+  padding: 10px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--card);
+}
+.slide-mini .sm-head {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  margin-bottom: 7px; letter-spacing: .2px;
+}
+.slide-mini .sm-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #bbb; flex: 0 0 auto;
+}
+/* 강사가 송출 중일 때(=현재 슬라이드 수신됨) dot 빨강 pulse */
+body.slide-live .slide-mini .sm-dot { background: var(--coral); animation: pulse 1.6s infinite; }
+.slide-mini .sm-num { margin-left: auto; font-family: ui-monospace, Consolas, monospace; color: var(--navy); }
+.slide-mini .sm-frame {
+  display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in;
+  position: relative; aspect-ratio: 16 / 9; overflow: hidden;
+  border-radius: 6px; background: #11161d;
+}
+.slide-mini .sm-frame img {
+  width: 100%; height: 100%; object-fit: contain; display: none;
+}
+.slide-mini .sm-empty {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  color: #9aa3ad; font-size: 11px; line-height: 1.5; padding: 8px;
+}
+
+/* 모바일(<881px): 사이드바가 오프스크린되므로 미니패널을 화면 상단 가로 바로 고정 */
+@media (max-width: 880px) {
+  .slide-mini {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 996;
+    margin: 0; border-radius: 0; border: 0; border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; gap: 10px; padding: 7px 12px 7px 60px;
+    background: var(--card); box-shadow: 0 2px 10px rgba(0,0,0,.10);
+  }
+  .slide-mini .sm-head { margin: 0; flex: 0 0 auto; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .slide-mini .sm-num { margin-left: 0; }
+  .slide-mini .sm-frame { flex: 0 0 96px; aspect-ratio: 16 / 9; }
+  /* 상단 바가 본문을 가리지 않도록 여백 — 슬라이드 핸드북에서만 적용 */
+  body.has-slides main { padding-top: 78px; }
+}
+/* 발표 모드에서는 미니패널 숨김(오버레이가 전체를 덮음) */
+body.present-mode .slide-mini { display: none !important; }
+/* 발표 모드에서 LIVE 모듈의 떠다니는 요소 억제 — 닉네임 모달(z-index 10000)이
+   발표 오버레이(9999) 위로 떠서 강사 발표를 가리는 것을 막는다 */
+body.present-mode #name-modal,
+body.present-mode #chat-toggle,
+body.present-mode #follow-fab { display: none !important; }
+
+/* ② 확대 라이트박스 — 미니패널 클릭 시 */
+.slide-lightbox {
+  position: fixed; inset: 0; z-index: 9998;
+  background: rgba(11,22,33,.88);
+  display: none; align-items: center; justify-content: center;
+  cursor: zoom-out; padding: 24px;
+}
+.slide-lightbox.show { display: flex; }
+.slide-lightbox img { max-width: 96vw; max-height: 92vh; border-radius: 6px; box-shadow: 0 12px 48px rgba(0,0,0,.5); }
+
+/* ③ 강사 발표 모드 전체화면 오버레이 — body 직속, ?present일 때 active */
+.present-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #0b1116; color: #fff;
+  display: none; flex-direction: column;
+}
+.present-overlay.active { display: flex; }
+.present-overlay .po-stage {
+  flex: 1; position: relative; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.present-overlay .po-stage img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5); background: #fff;
+}
+.present-overlay .po-nav {
+  position: absolute; top: 0; height: 100%; width: 22%;
+  background: transparent; border: 0; cursor: pointer;
+  color: rgba(255,255,255,.0); font-size: 64px; font-weight: 300;
+  display: flex; align-items: center; transition: color .15s, background .15s;
+}
+.present-overlay .po-nav:hover { color: rgba(255,255,255,.85); background: rgba(255,255,255,.04); }
+.present-overlay .po-prev { left: 0; justify-content: flex-start; padding-left: 24px; }
+.present-overlay .po-next { right: 0; justify-content: flex-end; padding-right: 24px; }
+.present-overlay .po-bar {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 16px;
+  padding: 12px 22px; background: #060a0e; border-top: 1px solid #1c2530;
+  font-size: 13px;
+}
+.present-overlay .po-count { font-family: ui-monospace, Consolas, monospace; font-weight: 700; font-size: 15px; }
+.present-overlay .po-section { color: #8aa0b5; font-family: ui-monospace, Consolas, monospace; }
+.present-overlay .po-auth {
+  margin-left: auto; padding: 5px 12px; border-radius: 999px;
+  font-weight: 700; font-size: 12px; cursor: pointer; user-select: none;
+}
+.present-overlay .po-auth.live { background: rgba(244,162,97,.18); color: var(--coral); cursor: default; }
+.present-overlay .po-auth.live::before { content: "● "; }
+.present-overlay .po-auth.need { background: #2a3744; color: #ffd9b0; }
+.present-overlay .po-exit {
+  background: transparent; border: 1px solid #33424f; color: #cdd7e0;
+  border-radius: 7px; padding: 6px 12px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: inherit;
+}
+.present-overlay .po-exit:hover { background: #1c2530; color: #fff; }
+
+/* ④ 강사 발표 시작 버튼 — slide-sync.js가 #toc-admin-controls 안에 주입 (관리자에게만 표시) */
+.ac-present-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; margin: 0 0 8px; padding: 10px 12px;
+  background: var(--navy); color: #fff; border: 0; border-radius: 8px;
+  font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  letter-spacing: .2px; transition: filter .15s, transform .05s;
+}
+.ac-present-btn:hover { filter: brightness(1.12); }
+.ac-present-btn:active { transform: translateY(1px); }
+.ac-present-btn span { font-size: 15px; line-height: 1; }

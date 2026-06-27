@@ -1,0 +1,35 @@
+/* forest-academic — 학술/논문/연구 자료용. 포레스트 그린 × 머스타드. 인쇄 친화 */
+:root {
+  --navy:    #1F3A2E;  /* 딥 포레스트 */
+  --deep:    #2C5F2D;  /* 포레스트 */
+  --teal:    #5A7C4A;  /* 모스 그린 */
+  --mist:    #DDE5D2;  /* 페일 모스 */
+  --cream:   #FAF8F2;  /* 아이보리 */
+  --coral:   #C97B3F;  /* 머스타드 브라운 */
+  --amber:   #D4A24C;  /* 머스타드 */
+  --ink:     #1C2519;
+  --muted:   #5F6B5A;
+  --rule:    #C9D2BD;
+  --bg:      #FDFCF7;  /* 종이톤 배경 */
+  --fg:      var(--ink);
+  --card:    #ffffff;
+  --code-bg: #1e2a1e;
+  --shadow:  0 1px 2px rgba(0,0,0,.04), 0 2px 6px rgba(0,0,0,.03);
+  --base-fs: 17px;
+}
+[data-theme="dark"] {
+  --navy:    #cfd8c2;
+  --deep:    #97BC62;
+  --teal:    #b3c79a;
+  --mist:    #2c3a2a;
+  --cream:   #131c14;
+  --coral:   #d49559;
+  --amber:   #e0b266;
+  --ink:     #e7ebe1;
+  --muted:   #9ba59a;
+  --rule:    #2c3a2a;
+  --bg:      #0d150e;
+  --fg:      var(--ink);
+  --card:    #16201a;
+  --shadow:  0 1px 3px rgba(0,0,0,.5), 0 4px 12px rgba(0,0,0,.35);
+}

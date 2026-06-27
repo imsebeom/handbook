@@ -1,0 +1,37 @@
+<!-- LIVE: 강의 전체톡 패널 — </main> 직후, .layout 닫는 </div> 직전 -->
+<aside id="chat-panel" role="complementary" aria-label="강의 전체톡">
+  <div class="chat-header">
+    <span class="title">💬 강의 전체톡</span>
+    <span class="count" id="chat-count"></span>
+    <span class="mode-flag" id="mode-flag" style="display:none"></span>
+    <button class="close" id="chat-close" aria-label="닫기" title="닫기">×</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"><div class="chat-empty">아직 메시지가 없습니다. 첫 글을 남겨 보세요.</div></div>
+  <form class="chat-form" id="chat-form" autocomplete="off">
+    <div class="row">
+      <input class="name" id="chat-name" type="text" placeholder="이름 (필수)" maxlength="20" required>
+    </div>
+    <div class="row">
+      <textarea id="chat-text" placeholder="메시지 (Enter로 전송, Shift+Enter 줄바꿈)" maxlength="300" required></textarea>
+    </div>
+    <div class="send-row">
+      <span class="hint" id="chat-hint">이름 + 메시지(최대 300자) · 누구나 보입니다</span>
+      <button class="send" type="submit" id="chat-send">보내기</button>
+    </div>
+  </form>
+</aside>
+
+<!-- LIVE: 닉네임 입력 모달 (최초 1회) — body 어디든. 보통 #toc-backdrop 옆 -->
+<div id="name-modal" role="dialog" aria-modal="true" aria-labelledby="name-modal-title">
+  <div class="box">
+    <h3 id="name-modal-title">💬 강의 전체톡 참여</h3>
+    <p>강의 중 질문·메모를 함께 나누는 채팅방입니다. 표시될 이름을 입력해 주세요.</p>
+    <input id="name-modal-input" type="text" maxlength="20" placeholder="예: 김선생, 5학년○○쌤" autocomplete="off">
+    <div class="hint" id="name-modal-hint"></div>
+    <div class="actions">
+      <button type="button" class="secondary" id="name-modal-skip">나중에</button>
+      <button type="button" class="primary" id="name-modal-save">시작하기</button>
+    </div>
+  </div>
+</div>
+

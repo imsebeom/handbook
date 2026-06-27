@@ -1,0 +1,53 @@
+// LIVE 모듈용 Firestore 규칙 — `<room_id>`를 실제 ROOM_ID로 교체 (예: singi2026, mdbf2026)
+// 본인 프로젝트의 firestore.rules 안 다른 컬렉션 규칙 옆에 추가 후
+// `firebase deploy --only firestore:rules --project YOUR_PROJECT_ID`
+
+// 강의 채팅 (누구나 작성·읽기, 강사만 삭제)
+match /<room_id>_chat/{doc} {
+  allow create: if
+    request.resource.data.keys().hasOnly(['name','text','createdAt'])
+    && request.resource.data.name is string
+    && request.resource.data.name.size() >= 1
+    && request.resource.data.name.size() <= 20
+    && request.resource.data.text is string
+    && request.resource.data.text.size() >= 1
+    && request.resource.data.text.size() <= 300
+    && request.resource.data.createdAt == request.time;
+
+  allow read: if true;
+
+  allow delete: if request.auth != null
+                && request.auth.token.email == 'YOUR_ADMIN_EMAIL@example.com'
+                && request.auth.token.email_verified == true;
+
+  allow update: if false;
+}
+
+// 강사 룸 상태 (팔로우 위치 + 채팅 모드 + 슬라이드)
+// - 누구나 read
+// - 강사 본인만 write
+// - 필드: currentSection (string ≤60), chatMode ('active'|'readonly'|'hidden'), followActive (bool), currentSlide (int ≥0, SLIDE 모듈), updatedAt (request.time), by ('YOUR_ADMIN_EMAIL@example.com')
+match /<room_id>_room/{doc} {
+  allow read: if true;
+
+  allow create, update: if request.auth != null
+                        && request.auth.token.email == 'YOUR_ADMIN_EMAIL@example.com'
+                        && request.auth.token.email_verified == true
+                        && request.resource.data.keys().hasOnly(['currentSection','chatMode','followActive','currentSlide','updatedAt','by'])
+                        && request.resource.data.updatedAt == request.time
+                        && request.resource.data.by == 'YOUR_ADMIN_EMAIL@example.com'
+                        && (!('currentSection' in request.resource.data) ||
+                            (request.resource.data.currentSection is string
+                             && request.resource.data.currentSection.size() <= 60))
+                        && (!('chatMode' in request.resource.data) ||
+                            request.resource.data.chatMode in ['active','readonly','hidden'])
+                        && (!('followActive' in request.resource.data) ||
+                            request.resource.data.followActive is bool)
+                        && (!('currentSlide' in request.resource.data) ||
+                            (request.resource.data.currentSlide is int
+                             && request.resource.data.currentSlide >= 0));
+
+  allow delete: if request.auth != null
+                && request.auth.token.email == 'YOUR_ADMIN_EMAIL@example.com'
+                && request.auth.token.email_verified == true;
+}
