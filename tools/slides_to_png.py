@@ -99,13 +99,23 @@ def main():
     else:
         sys.exit("[실패] 지원 형식: .pptx, .ppt, .pdf (입력: " + ext + ")")
 
+    # 원본을 다운로드용으로 핸드북에 복사 (slides/lecture.<ext>) → (D) 다운로드 카드가 사용.
+    # URL 경로는 ASCII로 고정(한글 경로 인코딩 회피)하고, 저장 파일명은 원본명을 유지한다.
+    dl_name = "lecture" + ext
+    shutil.copy2(src, os.path.join(slides_dir, dl_name))
+    orig_name = os.path.basename(src)
+
     print("[완료] 슬라이드 %d장 → %s" % (len(names), slides_dir))
+    print("[완료] 원본 다운로드본 → %s" % os.path.join(slides_dir, dl_name))
     print()
     print("// ▼ index.html의 window.SLIDES에 붙여넣고 section을 채우세요 (유연 매핑)")
     print("window.SLIDES = [")
     for nm in names:
         print('  { img: "slides/%s", section: null },' % nm)
     print("];")
+    print("// ▼ 강의 PPT 다운로드 (D 카드) — 그대로 붙여넣기")
+    print('window.SLIDES_PPT = "slides/%s";' % dl_name)
+    print('window.SLIDES_PPT_NAME = "%s";' % orig_name)
 
 
 if __name__ == "__main__":

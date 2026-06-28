@@ -107,13 +107,14 @@ LIVE가 필요 없는 경우(읽기 전용 매뉴얼·교재·논문 정리 등)
    - `partials/live-module/firestore-rules.snippet`을 본인 프로젝트의 `firestore.rules`에 추가 후 `firebase deploy --only firestore:rules --project <YOUR_PROJECT_ID>`
    - "시작하며" 활용법 박스에 채팅·팔로우 안내 한 줄 추가 (`partials/live-module/README.md` 끝 안내 참조)
 9. **`--slides=<경로>` 옵션 켜진 경우 SLIDE 모듈 통합** (LIVE 모듈 통합이 선행돼야 함):
-   - 슬라이드 PNG 추출: `PYTHONIOENCODING=utf-8 python tools/slides_to_png.py <슬라이드.pptx|pdf> <폴더명>` → `<폴더명>/slides/01.png …` 생성 + `window.SLIDES` 스캐폴드 stdout
+   - 슬라이드 PNG 추출: `PYTHONIOENCODING=utf-8 python tools/slides_to_png.py <슬라이드.pptx|pdf> <폴더명>` → `<폴더명>/slides/01.png …` 생성 + **원본을 `slides/lecture.<ext>`로 복사**(다운로드용) + `window.SLIDES`·`window.SLIDES_PPT` 스캐폴드 stdout
    - `partials/slide-module/slide-viewer.css` 전문을 `</style>` 직전(live-chat.css 다음) 삽입
    - `slide-viewer.html`의 **(A) 미니 패널**을 `<aside class="toc" id="toc">` 시작 직후 `<div class="topbar">` 바로 위에 삽입
    - `slide-viewer.html`의 **(C) 발표 오버레이+라이트박스**를 `.layout` 닫는 `</div>` 다음(live-chat-panel.html과 같은 영역)에 삽입
+   - `slide-viewer.html`의 **(D) 강의 PPT 다운로드 카드**를 본문 맨 끝, `<div class="footer">` 바로 위에 삽입(인용 안내 문구 포함). `window.SLIDES_PPT`가 비면 자동 숨김
    - `<body>`에 `has-slides` 클래스 추가
-   - `slide-viewer.html`의 **(B) SLIDES 매핑**을 삽입하고, 스캐폴드의 각 `section: null`을 본문 앵커 id(예: `section-2`)로 채운다 — **유연 매핑**(여러 슬라이드→한 섹션 OK, 점프 불필요 시 null). 원고·슬라이드 대조해 1차 제안 후 사용자 확인
-   - `partials/slide-module/slide-sync.js` 전문을 **`live-chat.js` 다음**, 같은 `<script type="module">` 안에 이어붙임(스코프 공유 필수)
+   - `slide-viewer.html`의 **(B) SLIDES 매핑**을 삽입하고, 스캐폴드의 각 `section: null`을 본문 앵커 id(예: `section-2`)로 채운다 — **유연 매핑**(여러 슬라이드→한 섹션 OK, 점프 불필요 시 null). 원고·슬라이드 대조해 1차 제안 후 사용자 확인. 같은 블록의 `window.SLIDES_PPT`·`window.SLIDES_PPT_NAME`을 1단계 스캐폴드 값으로 채운다(다운로드 카드 활성화)
+   - `partials/slide-module/slide-sync.js` 전문을 **`live-chat.js` 다음**, 같은 `<script type="module">` 안에 이어붙임(스코프 공유 필수). 발표 화면은 넘김 즉시 로컬 갱신(낙관적)+인접 슬라이드 프리로드로 지연이 없고, 왼쪽 섹션 목차로 임의 점프, 발표 전·종료 후엔 수강생 미니패널이 표지로 고정된다. '발표 시작'은 새 창으로 열린다
    - Firestore 규칙은 LIVE 모듈 스니펫에 이미 `currentSlide`가 포함됨 — LIVE 배포로 충분. **기존 LIVE 룸에 SLIDE를 켜는 경우 규칙 재배포 필수**(`currentSlide` 화이트리스트)
    - "시작하며" 활용법 박스에 좌상단 슬라이드 안내 한 줄 추가 (`partials/slide-module/README.md` 참조)
 
@@ -136,10 +137,14 @@ LIVE가 필요 없는 경우(읽기 전용 매뉴얼·교재·논문 정리 등)
   - [ ] 데스크탑에서 topbar(글자/다크/인쇄)가 채팅 헤더 안으로 흡수돼 본문과 겹치지 않는지
 - [ ] **SLIDE 모듈 켜진 경우 추가 검증**:
   - [ ] `<폴더명>/slides/01.png …` 가 실제 생성됐고 개수가 `window.SLIDES`와 일치
+  - [ ] `<폴더명>/slides/lecture.<ext>`(원본 다운로드본)이 복사됐고 `window.SLIDES_PPT`가 그 경로를 가리킴
   - [ ] `window.SLIDES`의 모든 `section` 값(null 제외)이 본문에 실제 존재하는 앵커 id를 가리킴
-  - [ ] `?present`로 발표 모드 진입 → Google 로그인 시 하단 배지가 "LIVE 송출 중"으로 바뀌고, ←→/Space/클릭으로 슬라이드가 넘어가는지
-  - [ ] **두 번째 브라우저(수강생)**에서 강사가 슬라이드를 넘길 때 ① 좌상단 미니 슬라이드 이미지 교체, ② 매핑된 섹션으로 스크롤 동기화가 모두 되는지
-  - [ ] 수강생이 직접 스크롤하면 추종 해제 + "📡 강사 따라가기" FAB 등장, 클릭 시 재개되는지(LIVE 팔로우 재사용)
+  - [ ] 발표 시작 전·종료 후 좌상단 미니패널이 **표지(1번 슬라이드)로 고정**되고, 라벨이 "표지"인지(발표 중에는 "강사 진행" + 빨강 dot)
+  - [ ] 본문 맨 끝 **다운로드 카드**가 보이고 PPT가 받아지며, 그 아래 **인용 안내 문구**가 노출되는지
+  - [ ] `?present`로 발표 모드 진입(새 창) → Google 로그인 시 하단 배지가 "LIVE 송출 중"으로 바뀌고, ←→/Space/클릭으로 슬라이드가 **지연 없이** 넘어가는지(프리로드). 왼쪽 섹션 목차 클릭 시 해당 슬라이드로 점프하는지
+  - [ ] **두 번째 브라우저(수강생)**에서 강사가 슬라이드를 넘길 때 ① 좌상단 미니 슬라이드 이미지 교체, ② 매핑된 섹션으로 스크롤 동기화, ③ 미니패널을 확대(라이트박스)해 둔 상태면 확대 이미지도 따라 바뀌는지
+  - [ ] 강사가 발표를 **종료(Esc/✕)하면** 수강생 미니패널이 표지로 복귀하는지(`followActive=false`)
+  - [ ] 수강생이 직접 스크롤하면 추종 해제 + "📡 강사 따라가기" FAB 등장, 클릭 시 재개되는지(LIVE 팔로우 재사용). 강사 팔로우 OFF면 FAB가 뜨지 않는지
   - [ ] 콘솔에 Firestore 권한 오류(`currentSlide` 화이트리스트 누락) 없는지
 
 ### 5단계 — 사용자 확인 + 후속

@@ -434,6 +434,13 @@ onSnapshot(roomRef, (snap) => {
   }
   hostFollowActive = data.followActive === true;
   updateFollowFab();
+  // 강사 본인: follow-pill UI를 Firestore 실제 상태와 동기화(잔재·타 기기 반영).
+  // 페이지를 새로 열면 pill은 OFF로 시작하지만 followActive 잔재가 true면 수강생에겐 fab가 떠 혼선이 생긴다 → 일치시킨다.
+  if (isAdmin && hostFollowOn !== hostFollowActive) {
+    hostFollowOn = hostFollowActive;
+    followPill.classList.toggle("on", hostFollowOn);
+    followPillLbl.textContent = hostFollowOn ? "팔로우 ON" : "팔로우 OFF";
+  }
   const id = data.currentSection;
   if (!id || id === lastReceivedId) return;
   lastReceivedId = id;
