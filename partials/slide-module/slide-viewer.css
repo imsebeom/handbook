@@ -152,6 +152,18 @@ body.present-mode #follow-fab { display: none !important; }
 .ac-present-btn:active { transform: translateY(1px); }
 .ac-present-btn span { font-size: 15px; line-height: 1; }
 
+/* 슬라이드 발표 종료 버튼 — 발표 중(followActive)일 때만 표시. 주의색(coral) 테두리 */
+.ac-present-end-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; margin: 0 0 8px; padding: 10px 12px;
+  background: transparent; color: var(--coral); border: 1px solid var(--coral); border-radius: 8px;
+  font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  letter-spacing: .2px; transition: background .15s, transform .05s;
+}
+.ac-present-end-btn:hover { background: rgba(244,162,97,.12); }
+.ac-present-end-btn:active { transform: translateY(1px); }
+.ac-present-end-btn span { font-size: 15px; line-height: 1; }
+
 /* ⑤ 강의 PPT 다운로드 카드 — 본문 맨 끝(footer 위). window.SLIDES_PPT 있을 때만 표시 */
 .slide-dl {
   margin: 44px 0 8px; padding: 22px;
