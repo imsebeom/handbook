@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLACEHOLDER_TITLE — 강의 전체톡</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  /* ============================================================
+     채팅 단독 페이지 — 핸드북 없이 채팅만 얇은 창으로 배포
+     원본: partials/live-module (팔로우 모드 제거, 항상 전면 패널)
+     테마 토큰은 template.html ocean-coral 라이트와 동일
+     ============================================================ */
+  :root {
+    --navy:    #0B2A4A;
+    --deep:    #065A82;
+    --teal:    #1C7293;
+    --mist:    #CFE3EE;
+    --cream:   #F4F8FB;
+    --coral:   #F4A261;
+    --amber:   #FFB454;
+    --ink:     #1A1A1A;
+    --muted:   #5C6670;
+    --rule:    #D8E3EA;
+    --bg:      #ffffff;
+    --fg:      var(--ink);
+    --card:    #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', '맑은 고딕', sans-serif;
+    margin: 0;
+    color: var(--fg);
+    background: var(--card);
+    display: flex; flex-direction: column;
+    height: 100dvh;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  /* 채팅 헤더 */
+  .chat-header {
+    background: var(--navy); color: #fff;
+    padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+    flex: 0 0 auto;
+  }
+  .chat-header .title { font-weight: 700; font-size: 14px; flex: 1; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-header .count { font-size: 12px; opacity: .8; font-family: ui-monospace, Consolas, monospace; color: #fff; }
+  .chat-header .mode-flag {
+    font-size: 10px; padding: 2px 6px; border-radius: 4px;
+    background: var(--coral); color: #fff; font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .chat-header .admin-btn {
+    background: transparent; border: none; cursor: pointer;
+    font-size: 15px; line-height: 1; padding: 4px 6px;
+    border-radius: 6px;
+  }
+  .chat-header .admin-btn:hover { background: rgba(255,255,255,.15); }
+
+  /* 관리자 스트립 — 로그인 시에만 표시 */
+  #admin-controls {
+    display: none;
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    background: var(--cream); border-bottom: 1px solid var(--rule);
+    align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  body.is-admin #admin-controls { display: flex; }
+  #admin-controls .ac-label {
+    font-size: 11px; color: var(--muted); font-weight: 700;
+  }
+  #admin-controls .mode-seg {
+    display: inline-flex;
+    background: var(--mist);
+    border-radius: 6px; padding: 2px;
+    font-size: 12px;
+  }
+  #admin-controls .mode-seg button {
+    background: transparent; border: 0; color: var(--deep);
+    padding: 5px 10px; border-radius: 4px; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: 12px;
+  }
+  #admin-controls .mode-seg button.active { background: var(--coral); color: #fff; }
+  #admin-controls .admin-status {
+    font-size: 11px; color: #b96a26; font-weight: 700;
+    margin-left: auto; word-break: break-all;
+  }
+
+  /* 메시지 영역 */
+  .chat-msgs {
+    flex: 1; overflow-y: auto; padding: 10px 14px;
+    background: var(--cream);
+    font-size: 14px; line-height: 1.5;
+  }
+  .chat-msg { position: relative; margin-bottom: 12px; }
+  .chat-msg .meta { font-size: 11px; color: var(--muted); margin-bottom: 2px; font-family: ui-monospace, Consolas, monospace; }
+  .chat-msg .meta .name { font-weight: 700; color: var(--navy); margin-right: 8px; }
+  .chat-msg .text { white-space: pre-wrap; word-break: break-word; color: var(--ink); }
+  .chat-msg .text a { color: var(--deep); }
+  .chat-empty { color: var(--muted); text-align: center; padding: 40px 20px; font-size: 13px; }
+  .chat-msg .del-admin {
+    position: absolute; top: 0; right: 0;
+    background: transparent; border: 1px solid #B85042; color: #B85042;
+    border-radius: 3px; padding: 1px 6px; font-size: 11px; cursor: pointer;
+    font-family: inherit; font-weight: 600; opacity: .6;
+    display: none;
+  }
+  body.is-admin .chat-msg .del-admin { display: inline-block; }
+  .chat-msg .del-admin:hover { background: #B85042; color: #fff; opacity: 1; }
+  .chat-msg .del-admin:disabled { opacity: .3; cursor: not-allowed; }
+
+  /* 입력 폼 */
+  .chat-form {
+    flex: 0 0 auto;
+    border-top: 1px solid var(--rule); padding: 10px 12px;
+    background: var(--card);
+  }
+  .chat-form .row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .chat-form input.name {
+    flex: 0 0 90px; padding: 6px 8px; border: 1px solid var(--rule);
+    border-radius: 4px; font-size: 12px; background: var(--bg); color: var(--fg);
+  }
+  .chat-form textarea {
+    flex: 1; padding: 6px 8px; border: 1px solid var(--rule);
+    border-radius: 4px; font-size: 13px; resize: none; min-height: 38px; max-height: 100px;
+    background: var(--bg); color: var(--fg); font-family: inherit;
+  }
+  .chat-form .send-row { display: flex; align-items: center; gap: 8px; }
+  .chat-form .hint { font-size: 11px; color: var(--muted); flex: 1; }
+  .chat-form button.send {
+    padding: 6px 14px; background: var(--coral); color: #fff; border: none;
+    border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600;
+  }
+  .chat-form button.send:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* 모달로 닉네임 받았으면 채팅 폼의 이름 행 숨김 */
+  body.has-name .chat-form .row:first-child { display: none; }
+
+  /* 채팅 모드 — readonly: 학생 입력 차단 */
+  body.chat-readonly:not(.is-admin) .chat-form .row,
+  body.chat-readonly:not(.is-admin) .chat-form .send { display: none; }
+  body.chat-readonly:not(.is-admin) .chat-form::before {
+    content: '🔒 강사가 입력을 잠갔습니다 — 읽기만 가능';
+    display: block; text-align: center;
+    color: #B85042; font-size: 13px; font-weight: 700;
+    padding: 10px 0;
+  }
+
+  /* 채팅 모드 — hidden: 단독 페이지에서는 빈 화면 대신 안내 문구 */
+  #hidden-notice {
+    display: none;
+    flex: 1;
+    align-items: center; justify-content: center;
+    background: var(--cream); color: var(--muted);
+    font-size: 14px; text-align: center; padding: 24px;
+    line-height: 1.8;
+  }
+  body.chat-hidden:not(.is-admin) .chat-msgs,
+  body.chat-hidden:not(.is-admin) .chat-form { display: none; }
+  body.chat-hidden:not(.is-admin) #hidden-notice { display: flex; }
+  /* hidden + admin — 시각적으로 "숨김 중" 표시 */
+  body.chat-hidden.is-admin .chat-msgs { box-shadow: inset 4px 0 0 var(--coral); }
+
+  /* 닉네임 입력 모달 — 최초 1회 */
+  #name-modal {
+    position: fixed; inset: 0;
+    background: rgba(11,42,74,.72);
+    z-index: 10000;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  #name-modal.show { display: flex; }
+  #name-modal .box {
+    background: var(--card); color: var(--fg);
+    width: min(420px, calc(100vw - 32px));
+    border-radius: 16px; padding: 28px 26px 22px;
+    box-shadow: 0 18px 48px rgba(0,0,0,.32);
+  }
+  #name-modal h3 { margin: 0 0 6px; color: var(--navy); font-size: 22px; }
+  #name-modal p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  #name-modal input {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid var(--rule); border-radius: 8px;
+    background: var(--bg); color: var(--fg);
+    font-size: 16px; font-family: inherit;
+    box-sizing: border-box;
+  }
+  #name-modal input:focus { outline: 2px solid var(--coral); border-color: var(--coral); }
+  #name-modal .actions { display: flex; gap: 8px; margin-top: 14px; }
+  #name-modal button {
+    flex: 1; padding: 11px 14px;
+    border: none; border-radius: 8px;
+    cursor: pointer; font-size: 14px; font-weight: 700;
+    font-family: inherit;
+  }
+  #name-modal button.primary { background: var(--coral); color: #fff; }
+  #name-modal button.primary:hover { background: #e08f53; }
+  #name-modal button.secondary { background: var(--mist); color: var(--deep); }
+  #name-modal .hint { color: #B85042; font-size: 12px; margin-top: 8px; min-height: 16px; }
+</style>
+</head>
+<body>
+
+<div class="chat-header">
+  <span class="title">💬 PLACEHOLDER_TITLE</span>
+  <span class="count" id="chat-count"></span>
+  <span class="mode-flag" id="mode-flag" style="display:none"></span>
+  <button class="admin-btn" id="admin-btn" title="관리자 로그인">🔒</button>
+</div>
+
+<div id="admin-controls">
+  <span class="ac-label">💬 채팅 상태</span>
+  <div class="mode-seg" role="tablist" aria-label="채팅 모드">
+    <button type="button" data-mode="active" class="active">활성</button>
+    <button type="button" data-mode="readonly">잠금</button>
+    <button type="button" data-mode="hidden">숨김</button>
+  </div>
+  <span class="admin-status" id="admin-status"></span>
+</div>
+
+<div class="chat-msgs" id="chat-msgs"><div class="chat-empty">아직 메시지가 없습니다. 첫 글을 남겨 보세요.</div></div>
+
+<div id="hidden-notice">🕐 강사가 채팅을 잠시 닫아 두었습니다.<br>다시 열리면 자동으로 나타납니다.</div>
+
+<form class="chat-form" id="chat-form" autocomplete="off">
+  <div class="row">
+    <input class="name" id="chat-name" type="text" placeholder="이름 (필수)" maxlength="20" required>
+  </div>
+  <div class="row">
+    <textarea id="chat-text" placeholder="메시지 (Enter로 전송, Shift+Enter 줄바꿈)" maxlength="300" required></textarea>
+  </div>
+  <div class="send-row">
+    <span class="hint" id="chat-hint">이름 + 메시지(최대 300자) · 누구나 보입니다</span>
+    <button class="send" type="submit" id="chat-send">보내기</button>
+  </div>
+</form>
+
+<div id="name-modal" role="dialog" aria-modal="true" aria-labelledby="name-modal-title">
+  <div class="box">
+    <h3 id="name-modal-title">💬 강의 전체톡 참여</h3>
+    <p>강의 중 질문·메모를 함께 나누는 채팅방입니다. 표시될 이름을 입력해 주세요.</p>
+    <input id="name-modal-input" type="text" maxlength="20" placeholder="예: 김선생, 5학년○○쌤" autocomplete="off">
+    <div class="hint" id="name-modal-hint"></div>
+    <div class="actions">
+      <button type="button" class="secondary" id="name-modal-skip">나중에</button>
+      <button type="button" class="primary" id="name-modal-save">시작하기</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ============================================================
+// 채팅 단독 페이지 JS — live-module/live-chat.js에서 채팅 핵심부만 추림
+// (팔로우 모드·토글·안읽음 배지 제거, 관리자 컨트롤은 헤더 스트립)
+// 주의: ROOM_ID는 배포마다 고유하게. 핸드북과 같은 값이면 같은 채팅방 공유
+// Firestore 규칙은 ../live-module/firestore-rules.snippet 참고
+// ============================================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, deleteDoc, doc, setDoc }
+  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+const ADMIN_EMAIL = "YOUR_ADMIN_EMAIL@example.com";
+
+// ★★★ 본인 Firebase 웹 앱 설정으로 교체 ★★★
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// ★★★ 배포마다 고유 ROOM_ID — 반드시 변경 ★★★
+const ROOM_ID = "PLACEHOLDER_ROOM_ID";
+
+const chatRef = collection(db, ROOM_ID + "_chat");
+const roomRef = doc(db, ROOM_ID + "_room", "main");
+
+const msgsEl = document.getElementById("chat-msgs");
+const countEl = document.getElementById("chat-count");
+const form = document.getElementById("chat-form");
+const nameInput = document.getElementById("chat-name");
+const textInput = document.getElementById("chat-text");
+const sendBtn = document.getElementById("chat-send");
+const hintEl = document.getElementById("chat-hint");
+const adminBtn = document.getElementById("admin-btn");
+const adminStatus = document.getElementById("admin-status");
+const modeFlag = document.getElementById("mode-flag");
+
+let isAdmin = false;
+let currentChatMode = "active"; // 'active' | 'readonly' | 'hidden'
+
+const savedName = localStorage.getItem(ROOM_ID + "_chat_name");
+if (savedName) nameInput.value = savedName;
+
+function fmtTime(d){
+  if (!d) return "";
+  const h = String(d.getHours()).padStart(2,"0");
+  const m = String(d.getMinutes()).padStart(2,"0");
+  return h + ":" + m;
+}
+
+function escape(s){ return String(s||"").replace(/[<>&]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
+
+function linkify(s){
+  const escaped = escape(s);
+  return escaped.replace(/(https?:\/\/[^\s<]+?)([.,!?;:)\]]*)(?=\s|$)/g,
+    (m, url, trailing) => '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>' + trailing);
+}
+
+function renderMsgs(docs){
+  if (docs.length === 0) {
+    msgsEl.innerHTML = '<div class="chat-empty">아직 메시지가 없습니다. 첫 글을 남겨 보세요.</div>';
+    return;
+  }
+  msgsEl.innerHTML = "";
+  docs.forEach(d => {
+    const m = d.data();
+    const dt = m.createdAt && m.createdAt.toDate ? m.createdAt.toDate() : null;
+    const div = document.createElement("div");
+    div.className = "chat-msg";
+    div.innerHTML =
+      '<div class="meta"><span class="name">' + escape(m.name || "익명") + '</span>' +
+      '<span class="time">' + fmtTime(dt) + '</span></div>' +
+      '<div class="text">' + linkify(m.text) + '</div>' +
+      '<button class="del-admin" data-id="' + escape(d.id) + '" title="관리자 삭제">×</button>';
+    msgsEl.appendChild(div);
+  });
+  msgsEl.querySelectorAll(".del-admin").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if (!isAdmin) return;
+      const id = btn.getAttribute("data-id");
+      btn.disabled = true;
+      btn.textContent = "...";
+      try { await deleteDoc(doc(db, ROOM_ID + "_chat", id)); }
+      catch(err){
+        btn.disabled = false;
+        btn.textContent = "×";
+        alert("삭제 실패: " + (err?.message || err));
+      }
+    });
+  });
+}
+
+const q = query(chatRef, orderBy("createdAt", "asc"), limit(200));
+onSnapshot(q, (snap) => {
+  const docs = snap.docs;
+  countEl.textContent = docs.length ? "(" + docs.length + ")" : "";
+  renderMsgs(docs);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+}, (err) => {
+  msgsEl.innerHTML = '<div class="chat-empty">채팅을 불러오지 못했습니다. 새로고침 부탁드려요.<br><br><code>' + (err.message || err) + '</code></div>';
+});
+
+onAuthStateChanged(auth, (user) => {
+  if (user && user.email === ADMIN_EMAIL && user.emailVerified) {
+    isAdmin = true;
+    document.body.classList.add("is-admin");
+    adminBtn.textContent = "🔓";
+    adminBtn.title = "관리자 로그아웃";
+    adminStatus.textContent = "✓ " + user.email;
+  } else {
+    isAdmin = false;
+    document.body.classList.remove("is-admin");
+    adminBtn.textContent = "🔒";
+    adminBtn.title = "관리자 로그인";
+    adminStatus.textContent = "";
+  }
+  applyChatModeUI(currentChatMode);
+});
+
+adminBtn.addEventListener("click", async () => {
+  if (isAdmin) {
+    if (confirm("관리자 로그아웃하시겠어요?")) await signOut(auth);
+  } else {
+    try { await signInWithPopup(auth, provider); }
+    catch(err){ alert("로그인 실패: " + (err?.message || err)); }
+  }
+});
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = textInput.value.trim();
+  const name = (nameInput.value || "").trim().slice(0, 20);
+  if (!name) {
+    nameInput.focus();
+    hintEl.textContent = "이름을 입력해 주세요.";
+    return;
+  }
+  if (!text) return;
+  localStorage.setItem(ROOM_ID + "_chat_name", name);
+  sendBtn.disabled = true;
+  hintEl.textContent = "전송 중...";
+  try {
+    await addDoc(chatRef, { name: name, text: text.slice(0, 300), createdAt: serverTimestamp() });
+    textInput.value = "";
+    hintEl.textContent = "이름 + 메시지(최대 300자) · 누구나 보입니다 · https:// 링크 자동 변환";
+  } catch (err) {
+    hintEl.textContent = "전송 실패: " + (err.message || err);
+  } finally {
+    sendBtn.disabled = false;
+  }
+});
+
+textInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+// ============================================================
+// 닉네임 입력 모달 — 최초 1회
+// ============================================================
+const nameModal = document.getElementById("name-modal");
+const nameModalInput = document.getElementById("name-modal-input");
+const nameModalSave = document.getElementById("name-modal-save");
+const nameModalSkip = document.getElementById("name-modal-skip");
+const nameModalHint = document.getElementById("name-modal-hint");
+
+function applySavedName(name){
+  nameInput.value = name;
+  document.body.classList.add("has-name");
+  localStorage.setItem(ROOM_ID + "_chat_name", name);
+}
+if (savedName) {
+  document.body.classList.add("has-name");
+} else {
+  setTimeout(() => {
+    nameModal.classList.add("show");
+    setTimeout(() => nameModalInput.focus(), 100);
+  }, 1200);
+}
+nameModalSave.addEventListener("click", () => {
+  const v = nameModalInput.value.trim().slice(0, 20);
+  if (!v) {
+    nameModalHint.textContent = "이름을 입력해 주세요.";
+    nameModalInput.focus();
+    return;
+  }
+  applySavedName(v);
+  nameModal.classList.remove("show");
+});
+nameModalSkip.addEventListener("click", () => {
+  nameModal.classList.remove("show");
+});
+nameModalInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); nameModalSave.click(); }
+});
+
+// ============================================================
+// 채팅 모드 (active / readonly / hidden) — 관리자 제어
+// ============================================================
+const modeSegBtns = document.querySelectorAll("#admin-controls .mode-seg button[data-mode]");
+
+function applyChatModeUI(mode){
+  document.body.classList.remove("chat-active","chat-readonly","chat-hidden");
+  document.body.classList.add("chat-" + mode);
+  modeSegBtns.forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  if (mode === "active") {
+    modeFlag.style.display = "none";
+  } else {
+    modeFlag.style.display = "inline-block";
+    modeFlag.textContent = mode === "readonly" ? "🔒 잠금" : "👁‍🗨 숨김";
+  }
+}
+
+async function setChatMode(mode){
+  if (!isAdmin) return;
+  if (!["active","readonly","hidden"].includes(mode)) return;
+  currentChatMode = mode;
+  applyChatModeUI(mode);
+  try {
+    await setDoc(roomRef, { chatMode: mode, updatedAt: serverTimestamp(), by: ADMIN_EMAIL }, { merge: true });
+  } catch (err) {
+    alert("모드 변경 실패: " + (err?.message || err));
+  }
+}
+modeSegBtns.forEach(b => b.addEventListener("click", () => setChatMode(b.dataset.mode)));
+
+// Firestore room 구독 — 채팅 모드 변경 감지 (핸드북 LIVE와 같은 room 문서 공유)
+onSnapshot(roomRef, (snap) => {
+  if (!snap.exists()) return;
+  const mode = snap.data().chatMode || "active";
+  if (mode !== currentChatMode) {
+    currentChatMode = mode;
+    applyChatModeUI(mode);
+  }
+}, (err) => {
+  console.warn("모드 구독 실패:", err?.message || err);
+});
+</script>
+</body>
+</html>

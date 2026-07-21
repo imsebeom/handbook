@@ -1,6 +1,6 @@
 ---
 name: handbook
-description: 강의 핸드북·교재·매뉴얼·연수 자료를 단일 HTML로 빌드. Pretendard·다크모드·TOC·코드 하이라이팅·인쇄 CSS 기본, 4테마 프리셋 선택, 옵션 LIVE 모듈(Firestore 실시간 채팅 + 강사 팔로우 모드), 옵션 SLIDE 모듈(슬라이드 핸드북: 강사 발표 슬라이드를 좌상단에 표시하고 슬라이드 넘김에 본문 스크롤 동기화). '핸드북', '교재 빌드', '강의 자료 HTML', '연수 자료 웹페이지', '강의 원고를 핸드북으로', '실시간 채팅 강의', '슬라이드 핸드북', '발표 동기화', 'PPT 연동 강의', 'handbook', '/handbook' 트리거 시 사용. 상세 옵션은 SKILL.md 본문.
+description: 강의 핸드북·교재·매뉴얼·연수 자료를 단일 HTML로 빌드. Pretendard·다크모드·TOC·코드 하이라이팅·인쇄 CSS 기본, 4테마 프리셋 선택, 옵션 LIVE 모듈(Firestore 실시간 채팅 + 강사 팔로우 모드), 옵션 SLIDE 모듈(슬라이드 핸드북: 강사 발표 슬라이드를 좌상단에 표시하고 슬라이드 넘김에 본문 스크롤 동기화), 옵션 채팅 단독 페이지(핸드북 없이 채팅만 얇은 창으로 배포). '핸드북', '교재 빌드', '강의 자료 HTML', '연수 자료 웹페이지', '강의 원고를 핸드북으로', '실시간 채팅 강의', '슬라이드 핸드북', '발표 동기화', 'PPT 연동 강의', '채팅 단독', '독립 채팅', '채팅만 배포', 'handbook', '/handbook' 트리거 시 사용. 상세 옵션은 SKILL.md 본문.
 ---
 
 # /handbook — 강의 핸드북 HTML 빌더
@@ -154,6 +154,15 @@ LIVE가 필요 없는 경우(읽기 전용 매뉴얼·교재·논문 정리 등)
 - 빌드된 `index.html`은 단일 파일이라 임의 정적 호스팅(Firebase Hosting·GitHub Pages·Netlify·Vercel 등)에 그대로 올리면 된다 (이 스킬은 빌드만 담당 — 배포는 분리)
 - 추가 보강이 필요한 영역(코드 샘플 더, FAQ 더, 응용 아이디어 더 등)을 한 줄로 안내
 
+## 옵션: 채팅 단독 페이지 (chat-standalone)
+
+핸드북 없이 **채팅만 단일 HTML 한 장으로 배포**하는 부속 모듈. 연수 중 화면 오른쪽에 얇은 창(폭 340~420px)으로 스냅해 쓰는 용도이며, 핸드북 빌드 워크플로와 무관하게 단독 사용한다.
+
+- 템플릿: `partials/chat-standalone/chat-standalone.html` — `firebaseConfig`·`ADMIN_EMAIL` 교체 후 `PLACEHOLDER_ROOM_ID`와 `PLACEHOLDER_TITLE`(2곳: title 태그, 헤더)만 치환하면 완성
+- 같은 ROOM_ID를 쓰면 기존 LIVE 핸드북과 **같은 채팅방·채팅 모드를 공유**한다 (규칙 재배포 불필요). 새 ROOM_ID면 live-module과 동일하게 Firestore 규칙 배포 필요
+- 팔로우·슬라이드 동기화는 없음 (room 문서의 `chatMode`만 구독). 숨김 모드는 빈 화면 대신 안내 문구 표시
+- 적용 절차·강사 현장 사용법: `partials/chat-standalone/README.md`
+
 ## 디자인 원칙 (불변)
 
 - **테마 토큰 슬롯 고정** — `--navy / --deep / --teal / --mist / --cream / --coral / --amber / --ink / --muted / --rule / --bg / --fg / --card / --code-bg / --shadow / --base-fs`. 변수명 추가 금지. 색상은 `themes/<name>.css`에서만 조정
@@ -186,6 +195,9 @@ LIVE가 필요 없는 경우(읽기 전용 매뉴얼·교재·논문 정리 등)
 - `partials/slide-module/` — **슬라이드 핸드북 옵션 모듈** (LIVE 확장: 발표 슬라이드 표시 + 슬라이드↔섹션 동기화)
   - `README.md` — 통합 절차 / 강사 현장 사용법
   - `slide-viewer.css` / `slide-viewer.html` / `slide-sync.js`
+- `partials/chat-standalone/` — **채팅 단독 페이지 모듈** (핸드북 없이 채팅만 얇은 창으로 배포)
+  - `README.md` — 적용 절차 / 강사 현장 사용법
+  - `chat-standalone.html` — 단일 파일 템플릿 (ROOM_ID·제목 치환만으로 완성)
 - `tools/check_overflow.py` — 빌드 후 정적+동적 오버플로우 점검 스크립트
 - `tools/slides_to_png.py` — 슬라이드(PPTX/PDF) → `slides/NN.png` 변환 + SLIDES 스캐폴드 출력
 
@@ -206,6 +218,7 @@ LIVE가 필요 없는 경우(읽기 전용 매뉴얼·교재·논문 정리 등)
 - "선생님들에게 배포할 안내 핸드북"
 - "강의 중 실시간 채팅·팔로우 모드가 되는 핸드북" → `--live=<room_id>` 적용
 - "강사 슬라이드를 좌상단에 띄우고 슬라이드 넘기면 본문이 따라가는 슬라이드 핸드북" → `--slides=<경로>` + `--live=<room_id>` 적용
+- "채팅만 따로 배포해서 화면 옆에 얇게 띄우고 싶어" → `partials/chat-standalone/` 단독 배포
 
 ## 사용 후 권장 후속
 
