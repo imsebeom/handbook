@@ -77,7 +77,7 @@ function setUnread(n){
   }
 }
 
-function escape(s){ return String(s||"").replace(/[<>&]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
+function escape(s){ return String(s||"").replace(/[<>&"']/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;","'":"&#39;"}[c])); }
 
 function linkify(s){
   const escaped = escape(s);
